@@ -26,9 +26,11 @@ spec:
     keepHistory: false
   values:
     auth:
-      username: ${INIT_POSTGRES_USER}
-      password: ${INIT_POSTGRES_PASS}
-      database: ${INIT_POSTGRES_DBNAME}
+      existingSecret: lldap-secret
+      secretKeys:
+        userPasswordKey: INIT_POSTGRES_PASS
+      username: ${LLDAP_DB_USER}
+      database: ${LLDAP_DB_NAME}
     primary:
       persistence:
         enabled: true
@@ -37,6 +39,3 @@ spec:
       enabled: true
       serviceMonitor:
         enabled: true
-    envFrom:
-      - secretRef:
-          name: lldap-secret
