@@ -29,6 +29,7 @@ spec:
       existingSecret: lldap-secret
       secretKeys:
         userPasswordKey: INIT_POSTGRES_PASS
+        adminPasswordKey: INIT_POSTGRES_SUPER_PASS
       username: ${LLDAP_DB_USER}
       database: ${LLDAP_DB_NAME}
     primary:
