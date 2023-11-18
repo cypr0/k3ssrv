@@ -33,95 +33,95 @@ spec:
       namespace: security
   values:
     domain: ${SECRET_DOMAIN}
-      ingress:
+    ingress:
+      enabled: true
+      subdomain: auth
+      className: internal
+      tls:
         enabled: true
-        subdomain: auth
-        className: internal
-        tls:
+    pod:
+      kind: Deployment
+      replicas: 1
+      strategy:
+        type: Recreate
+    configMap:
+      theme: dark
+      authentication_backend:
+        password_reset:
+          disable: true
+        ldap:
           enabled: true
-      pod:
-        kind: Deployment
-        replicas: 1
-        strategy:
-          type: Recreate
-      configMap:
-        theme: dark
-        authentication_backend:
-          password_reset:
-            disable: true
-          ldap:
+          address: ldap://ldap:389
+          implementation: custom
+          timeout: 5s
+          start_tls: false
+          base_dn: dc=home,dc=arpa
+          additional_users_dn: ou=people
+          users_filter: (&({username_attribute}={input})(objectClass=person))
+          additional_groups_dn: ou=groups
+          groups_filter: (member={dn})
+          group_search_mode: filter
+          user: uid=admin,ou=people,dc=home.dc=arpa
+          attributes:
+            username: uid
+            display_name: displayName
+            mail: mail
+            member_of: memberOf
+            group_name: cn
+        session:
+          same_site: lax
+          inactivity: 5m
+          expiration: 1h
+          remember_me: 1M
+          cookies:
+            - name: ${SECRET_DOMAIN}_session
+              domain: ${SECRET_DOMAIN}
+              authelia_url: https://auth.${SECRET_DOMAIN}
+              default_redirection_url: https://${SECRET_DOMAIN}
+          redis:
             enabled: true
-            address: ldap://ldap:389
-            implementation: custom
-            timeout: 5s
-            start_tls: false
-            base_dn: dc=home,dc=arpa
-            additional_users_dn: ou=people
-            users_filter: (&({username_attribute}={input})(objectClass=person))
-            additional_groups_dn: ou=groups
-            groups_filter: (member={dn})
-            group_search_mode: filter
-            user: uid=admin,ou=people,dc=home.dc=arpa
-            attributes:
-              username: uid
-              display_name: displayName
-              mail: mail
-              member_of: memberOf
-              group_name: cn
-          session:
-            same_site: lax
-            inactivity: 5m
-            expiration: 1h
-            remember_me: 1M
-            cookies:
-              - name: ${SECRET_DOMAIN}_session
-                domain: ${SECRET_DOMAIN}
-                authelia_url: https://auth.${SECRET_DOMAIN}
-                default_redirection_url: https://${SECRET_DOMAIN}
-            redis:
-              enabled: true
-              enabledSecret: true
-              host: authelia-redis-master
-          regulation:
-            max_retries: 3
-            find_time: 2m
-            ban_time: 5m
-          storage:
-            postgres:
-              enabled: true
-              host: authelia-postgresql
-              database: ${AUTHELIA_DB_NAME}
-              username: ${AUTHELIA_DB_USER}
-          notifier:
-            disable_startup_check: true
-            smtp:
-              enabled: true
-              enabledSecret: true
-              host: mail.${SECRET_DOMAIN}
-              port: 465
-              username: mail@${SECRET_DOMAIN}
-              sender: Authelia <authelia@${SECRET_DOMAIN}>
-          totp:
-            disable: false
-            issuer: authelia.com
-          webauthn:
-            disable: false
-          duo_api:
-            disable: true
-        access_control:
-          default_policy: two_factor
-          networks:
-          - name: internal
-            networks: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
-          rules: []
-      secret:
-        existingSecret: authelia-secret
-        jwt.key: AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET
-        ldap.key: AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD
-        storage.key: AUTHELIA_STORAGE_POSTGRES_PASSWORD
-        storageEncryptionKey.key: AUTHELIA_STORAGE_ENCRYPTION_KEY
-        redis.key: AUTHELIA_SESSION_REDIS_PASSWORD
-        session.key: AUTHELIA_SESSION_SECRET
-        smtp.key: AUTHELIA_NOTIFIER_SMTP_PASSWORD
-        oidcPrivateKey.key: AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY
-        oidcHMACSecret.key: AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET
+            enabledSecret: true
+            host: authelia-redis-master
+        regulation:
+          max_retries: 3
+          find_time: 2m
+          ban_time: 5m
+        storage:
+          postgres:
+            enabled: true
+            host: authelia-postgresql
+            database: ${AUTHELIA_DB_NAME}
+            username: ${AUTHELIA_DB_USER}
+        notifier:
+          disable_startup_check: true
+          smtp:
+            enabled: true
+            enabledSecret: true
+            host: mail.${SECRET_DOMAIN}
+            port: 465
+            username: mail@${SECRET_DOMAIN}
+            sender: Authelia <authelia@${SECRET_DOMAIN}>
+        totp:
+          disable: false
+          issuer: authelia.com
+        webauthn:
+          disable: false
+        duo_api:
+          disable: true
+      access_control:
+        default_policy: two_factor
+        networks:
+        - name: internal
+          networks: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+        rules: []
+    secret:
+      existingSecret: authelia-secret
+      jwt.key: AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET
+      ldap.key: AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD
+      storage.key: AUTHELIA_STORAGE_POSTGRES_PASSWORD
+      storageEncryptionKey.key: AUTHELIA_STORAGE_ENCRYPTION_KEY
+      redis.key: AUTHELIA_SESSION_REDIS_PASSWORD
+      session.key: AUTHELIA_SESSION_SECRET
+      smtp.key: AUTHELIA_NOTIFIER_SMTP_PASSWORD
+      oidcPrivateKey.key: AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY
+      oidcHMACSecret.key: AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET
