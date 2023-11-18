@@ -74,10 +74,11 @@ spec:
           expiration: 1h
           remember_me: 1M
           name: ${SECRET_DOMAIN}_session
+          domain: ${SECRET_DOMNAIN}
           redis:
             enabled: true
             enabledSecret: true
-            host: authelia-redis-master
+            host: authelia-redis-master.security.svc.cluster.local
         regulation:
           max_retries: 3
           find_time: 2m
