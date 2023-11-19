@@ -36,4 +36,4 @@ spec:
         enabled: true
     auth:
       existingSecret: authelia-secret
-      existingSecretPasswordKey: REDIS_PASSWORD
+      existingSecretPasswordKey: AUTHELIA_SESSION_REDIS_PASSWORD
