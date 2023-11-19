@@ -11,3 +11,11 @@ resources:
   - ./helmrelease-db.yaml
   - ./pvc-db.yaml
   - ./pvc-redis.yaml
+configMapGenerator:
+  - name: authelia-configmap
+    files:
+      - configuration.yaml=./config/configuration.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
