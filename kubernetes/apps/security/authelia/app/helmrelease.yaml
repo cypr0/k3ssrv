@@ -129,6 +129,7 @@ spec:
         enabled: true
         type: configMap
         name: authelia-configmap
+        namespace: security
         globalMounts:
           - path: /config/configuration.yaml
             subPath: configuration.yaml
