@@ -73,12 +73,12 @@ spec:
         inactivity: 5m
         expiration: 1h
         remember_me: 1M
-        name: ${SECRET_DOMAIN}_session
+        name: ${SECRET_DOMAIN}_authelia_session
         domain: ${SECRET_DOMNAIN}
         redis:
           enabled: true
           enabledSecret: true
-          host: authelia-redis-master.security.svc.cluster.local
+          host: authelia-redis-master
           port: 6379
       regulation:
         max_retries: 3
@@ -112,5 +112,5 @@ spec:
       - name: internal
         networks: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
       rules: []
-    secret:
-      existingSecret: authelia-secret
+  secret:
+    existingSecret: authelia-secret
