@@ -22,6 +22,19 @@ authentication_backend:
       member_of: memberOf
       group_name: cn
 
+password_policy:
+  standard:
+    enabled: false
+    min_length: 12
+    max_length: 0
+    require_uppercase: true
+    require_lowercase: true
+    require_number: true
+    require_special: true
+  zxcvbn:
+    enabled: true
+    min_score: 3
+
 session:
   same_site: lax
   inactivity: 5m
@@ -50,6 +63,10 @@ totp:
 
 webauthn:
   disable: false
+  display_name: ${SECRET_DOMAIN} Authelia
+  attestation_conveyance_preference: indirect
+  user_verification: preferred
+  timeout: 60s
 
 duo_api:
   disable: true
