@@ -79,6 +79,7 @@ spec:
             enabled: true
             enabledSecret: true
             host: authelia-redis-master.security.svc.cluster.local
+            port: 6379
         regulation:
           max_retries: 3
           find_time: 2m
