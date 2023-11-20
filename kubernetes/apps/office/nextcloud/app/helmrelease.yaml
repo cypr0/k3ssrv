@@ -1,0 +1,126 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nextcloud
+  namespace: office
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: nextcloud
+      version: 4.5.2
+      sourceRef:
+        kind: HelmRepository
+        name: nextcloud
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+    - name: nextcloud-redis
+      namespace: office
+    - name: nextcloud-postgresql
+      namesapce: office
+  values:
+    image:
+      flavor: fpm-alpine
+    nginx:
+      enabled: true
+    nextcloud:
+      datadir: /var/www/data
+      extraEnv:
+        - name: REDIS_HOST
+          value: nextcloud-redis-master
+        - name: REDIS_HOST_PORT
+          value: "6379"
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-secret
+      host: &host cloud.${SECRET_DOMAIN}
+      mail:
+        enabled: true
+        fromAddress: admin
+        domain: ${SECRET_DOMAIN}
+        smtp:
+          host: mail.${SECRET_DOMAIN}
+          secure: ssl
+          port: 465
+          authtype: LOGIN
+      securityContext:
+        runAsUser: 1022
+        runAsGroup: 1022
+        runAsNonRoot: true
+    internalDatabase:
+      enabled: false
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: nextcloud-postgres
+      database: ${NEXTCLOUD_DB_NAME}
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-secret
+        usernameKey: NEXTCLOUD_DB_USER
+        passwordKey: NEXTCLOUD_DB_PASS
+    ingress:
+      enabled: true
+      className: external
+      annotations:
+        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        nginx.ingress.kubernetes.io/proxy-body-size: "10G"
+        nginx.ingress.kubernetes.io/proxy-buffering: "off"
+        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+        nginx.ingress.kubernetes.io/server-snippet: |-
+          server_tokens off;
+          proxy_hide_header X-Powered-By;
+
+          rewrite ^/.well-known/webfinger /public.php?service=webfinger last;
+          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+          location = /.well-known/carddav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /.well-known/caldav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+          }
+          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+            deny all;
+          }
+          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+            deny all;
+          }
+      path: /
+      pathType: Prefix
+      tls:
+        - hosts:
+            - *host
+    persistence:
+      enabled: true
+      existingClaim: nextcloud-config-pvc
+      nextcloudData:
+        enabled: true
+        existingClaim: nextcloud-data-pvc
+        accessMode: ReadWriteOnce
+    # this seems to be required for nextcloud initialization which takes a long time
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30
+      successThreshold: 1
