@@ -24,7 +24,7 @@ authentication_backend:
 
 password_policy:
   standard:
-    enabled: false
+    enabled: true
     min_length: 12
     max_length: 0
     require_uppercase: true
@@ -55,6 +55,7 @@ notifier:
     address: mail.${SECRET_DOMAIN}:465
     username: mail@${SECRET_DOMAIN}
     sender: Authelia <authelia@${SECRET_DOMAIN}>
+    identifier: k3ssrv.${SECRET_DOMAIN}
     disable_require_tls: false
 
 totp:
