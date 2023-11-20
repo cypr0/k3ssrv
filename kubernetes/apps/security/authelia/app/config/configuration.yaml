@@ -50,14 +50,12 @@ session:
     database_index: 14
 
 notifier:
-  disable_startup_check: false
+  disable_startup_check: true
   smtp:
-    address: mail.${SECRET_DOMAIN}:465
+    address: smtps://mail.${SECRET_DOMAIN}:465
     username: mail@${SECRET_DOMAIN}
     sender: Authelia <authelia@${SECRET_DOMAIN}>
-    identifier: k3ssrv.${SECRET_DOMAIN}
     subject: "[Authelia] {title}"
-    startup_check_address: mail@${SECRET_DOMAIN}
     disable_require_tls: false
     disable_html_emails: false
 
