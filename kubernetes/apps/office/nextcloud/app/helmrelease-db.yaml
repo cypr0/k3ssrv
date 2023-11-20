@@ -28,7 +28,7 @@ spec:
     auth:
       existingSecret: nextcloud-secret
       secretKeys:
-        userPasswordKey: NEXTCLOUD_POSTGRES_PASS
+        userPasswordKey: NEXTCLOUD_DB_PASS
         adminPasswordKey: POSTGRES_SUPER_PASS
       username: ${NEXTCLOUD_DB_USER}
       database: ${NEXTCLOUD_DB_NAME}
