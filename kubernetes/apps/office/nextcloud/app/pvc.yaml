@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: .config-pvc
+  name: nextcloud-config-pvc
   namespace: office
 spec:
   accessModes: ["ReadWriteOnce"]
