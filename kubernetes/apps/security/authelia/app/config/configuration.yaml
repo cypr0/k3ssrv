@@ -50,7 +50,7 @@ session:
     database_index: 14
 
 notifier:
-  disable_startup_check: true
+  disable_startup_check: false
   smtp:
     address: mail.${SECRET_DOMAIN}:465
     username: mail@${SECRET_DOMAIN}
