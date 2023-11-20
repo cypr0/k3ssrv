@@ -56,7 +56,10 @@ notifier:
     username: mail@${SECRET_DOMAIN}
     sender: Authelia <authelia@${SECRET_DOMAIN}>
     identifier: k3ssrv.${SECRET_DOMAIN}
+    subject: "[Authelia] {title}"
+    startup_check_address: mail@${SECRET_DOMAIN}
     disable_require_tls: false
+    disable_html_emails: false
 
 totp:
   disable: false
