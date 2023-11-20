@@ -30,7 +30,7 @@ spec:
     - name: nextcloud-redis
       namespace: office
     - name: nextcloud-postgresql
-      namesapce: office
+      namespace: office
   values:
     image:
       flavor: fpm-alpine
