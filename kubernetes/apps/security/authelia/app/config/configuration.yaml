@@ -55,7 +55,7 @@ notifier:
     address: submission://mail.${SECRET_DOMAIN}:465
     username: mail@${SECRET_DOMAIN}
     identifier: ${SECRET_DOMAIN}
-    sender: authelia@${SECRET_DOMAIN}
+    sender: mail@${SECRET_DOMAIN}
     subject: "[Authelia] {title}"
     disable_require_tls: false
     disable_html_emails: false
