@@ -24,7 +24,7 @@ authentication_backend:
 
 password_policy:
   standard:
-    enabled: true
+    enabled: false
     min_length: 12
     max_length: 0
     require_uppercase: true
