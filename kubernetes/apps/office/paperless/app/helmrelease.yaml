@@ -58,6 +58,7 @@ spec:
               PAPERLESS_TIKA_ENDPOINT: http://localhost:9998
               PAPERLESS_TIME_ZONE: ${TIMEZONE}
               PAPERLESS_URL: https://paperless.${SECRET_DOMAIN}
+              PAPERLESS_LOGOUT_REDIRECT_URL: https://auth.${SECRET_DOMAIN}
               USERMAP_UID: 568
               USERMAP_GID: 568
             envFrom:
