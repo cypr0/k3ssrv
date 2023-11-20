@@ -28,8 +28,8 @@ spec:
     auth:
       existingSecret: authelia-secret
       secretKeys:
-        userPasswordKey: INIT_POSTGRES_PASS
-        adminPasswordKey: INIT_POSTGRES_SUPER_PASS
+        userPasswordKey: AUTHELIA_STORAGE_POSTGRES_PASSWORD
+        adminPasswordKey: POSTGRES_SUPER_PASS
       username: ${AUTHELIA_DB_USER}
       database: ${AUTHELIA_DB_NAME}
     primary:
