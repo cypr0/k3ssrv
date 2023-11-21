@@ -56,10 +56,6 @@ spec:
           secure: ssl
           port: 465
           authtype: LOGIN
-      securityContext:
-        runAsUser: 1022
-        runAsGroup: 1022
-        runAsNonRoot: true
     internalDatabase:
       enabled: false
     externalDatabase:
