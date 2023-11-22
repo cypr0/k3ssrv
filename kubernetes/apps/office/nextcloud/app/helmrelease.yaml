@@ -56,6 +56,25 @@ spec:
           secure: ssl
           port: 465
           authtype: LOGIN
+            configs:
+      proxy.config.php: |-
+        <?php
+        $CONFIG = array (
+          'trusted_proxies' =>
+          array(
+              0 => '${CLUSTER_CIDR}',
+          ),
+          'forwarded_for_headers' =>
+          array (
+            0 => 'HTTP_X_FORWARDED_FOR',
+          ),
+        );
+      #Circumvention for client freezes - https://github.com/nextcloud/desktop/issues/5094
+      bulkupload.config.php: |-
+        <?php
+        $CONFIG = array (
+          'bulkupload.enabled' => false,
+        );
     internalDatabase:
       enabled: false
     externalDatabase:
