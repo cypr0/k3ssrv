@@ -64,6 +64,8 @@ spec:
             array(
                 0 => '${CLUSTER_CIDR}',
                 1 => '${NODE_CIDR}',
+                2 => '${SERVICE_CIDR}',
+                3 => 'cloud.${SECRET_DOMAIN}',
             ),
             'forwarded_for_headers' =>
             array (
