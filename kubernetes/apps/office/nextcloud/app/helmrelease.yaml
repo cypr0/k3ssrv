@@ -63,6 +63,7 @@ spec:
             'trusted_proxies' =>
             array(
                 0 => '${CLUSTER_CIDR}',
+                1 => '${NODE_CIDR}',
             ),
             'forwarded_for_headers' =>
             array (
