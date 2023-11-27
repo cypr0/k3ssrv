@@ -60,6 +60,17 @@ spec:
         fsGroupChangePolicy: "OnRootMismatch"
         runAsNonRoot: true
       configs:
+        redis.config.php: |-
+          <?php
+          $CONFIG = array (
+            'memcache.local' => '\\OC\\Memcache\\Redis',
+            'memcache.distributed' => '\OC\Memcache\Redis',
+            'memcache.locking' => '\OC\Memcache\Redis',
+            'redis' => array(
+              'host' => 'nextcloud-redis-master',
+              'port' => 6379
+            )
+          );
         local.config.php: |-
           <?php
           $CONFIG = array (
