@@ -4,5 +4,6 @@ kind: Kustomization
 namespace: office
 resources:
   - ./externalsecret.yaml
-  - ./helmrelease.yaml
-  - ./pvc.yaml
+  - ./cluster.yaml
+  #- ./helmrelease.yaml
+  #- ./pvc.yaml
