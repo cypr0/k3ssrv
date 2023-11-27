@@ -5,6 +5,4 @@ namespace: office
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ./helmrelease-db.yaml
   - ./pvc.yaml
-  - ./pvc-db.yaml
