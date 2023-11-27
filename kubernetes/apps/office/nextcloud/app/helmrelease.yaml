@@ -27,118 +27,181 @@ spec:
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
-    - name: nextcloud-redis
-      namespace: office
     - name: nextcloud-postgresql
       namespace: office
   values:
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: &secret nextcloud-secret
     image:
-      flavor: fpm-alpine
-    nginx:
-      enabled: true
+      repository: public.ecr.aws/docker/library/nextcloud
+      tag: 27.1.3-fpm-alpine
     nextcloud:
-      datadir: /var/www/data
-      extraEnv:
-        - name: REDIS_HOST
-          value: nextcloud-redis-master
-        - name: REDIS_HOST_PORT
-          value: "6379"
+      host: &host "cloud.${SECRET_DOMAIN}"
       existingSecret:
         enabled: true
-        secretName: nextcloud-secret
-      host: &host cloud.${SECRET_DOMAIN}
+        secretName: *secret
+        usernameKey: nextcloud-username
+        passwordKey: nextcloud-password
+        smtpHostKey: smtp-host
+        smtpUsernameKey: smtp-username
+        smtpPasswordKey: smtp-password
       mail:
         enabled: true
         fromAddress: admin
-        domain: ${SECRET_DOMAIN}
+        domain: "${SECRET_DOMAIN}"
         smtp:
-          host: mail.${SECRET_DOMAIN}
           secure: ssl
           port: 465
           authtype: LOGIN
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: "OnRootMismatch"
+        runAsNonRoot: true
       configs:
-        proxy.config.php: |-
+        local.config.php: |-
           <?php
           $CONFIG = array (
             'trusted_proxies' =>
-            array(
-                0 => '${CLUSTER_CIDR}',
-                1 => '${NODE_CIDR}',
-                2 => '${SERVICE_CIDR}',
-                3 => 'cloud.${SECRET_DOMAIN}',
+            array (
+              0 => '127.0.0.1',
+              1 => '172.16.0.0/16',
+              2 => '192.168.0.0/16',
+              3 => '10.42.0.0/16',
+              4 => '10.43.0.0/16',
             ),
             'forwarded_for_headers' =>
             array (
               0 => 'HTTP_X_FORWARDED_FOR',
             ),
+            'default_phone_region' => 'DE',
+            'trashbin_retention_obligation' => 'auto, 30',
+            'auth.bruteforce.protection.enabled' => true,
           );
-        #Circumvention for client freezes - https://github.com/nextcloud/desktop/issues/5094
-        bulkupload.config.php: |-
-          <?php
-          $CONFIG = array (
-            'bulkupload.enabled' => false,
-          );
+      phpConfigs:
+        uploadLimit.ini: |
+          upload_max_filesize = 16G
+          post_max_size = 16G
+          max_input_time = 3600
+          max_execution_time = 3600
+        www.conf: |
+          [www]
+          user = www-data
+          group = www-data
+          listen = 127.0.0.1:9000
+          pm = dynamic
+          pm.max_children = 57
+          pm.start_servers = 14
+          pm.min_spare_servers = 14
+          pm.max_spare_servers = 42
+          pm.max_requests = 500
+          pm.process_idle_timeout = 10s
+    persistence:
+      enabled: true
+      existingClaim: nextcloud-data-pvc
+    resources:
+      requests:
+        cpu: 200m
+        memory: 300Mi
+      limits:
+        memory: 2000Mi
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 120
+      successThreshold: 1
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    cronjob:
+      enabled: true
+    ingress:
+      enabled: true
+      className: external
+      annotations:
+        nginx.ingress.kubernetes.io/custom-http-errors: "418"
+        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+      tls:
+        - hosts:
+            - *host
+    nginx:
+      enabled: true
+      image:
+        repository: public.ecr.aws/nginx/nginx
+        tag: "1.25.3"
+      config:
+        default: true
+      resources:
+        requests:
+          cpu: 50m
+          memory: 20Mi
+        limits:
+          memory: 100Mi
     internalDatabase:
       enabled: false
     externalDatabase:
       enabled: true
       type: postgresql
-      host: nextcloud-postgres
       database: ${NEXTCLOUD_DB_NAME}
       existingSecret:
         enabled: true
-        secretName: nextcloud-secret
-        usernameKey: NEXTCLOUD_DB_USER
+        secretName: *secret
+        hostKey: NEXTCLOUD_POSTGRES_HOST
+        databaseKey: NEXTCLOUD_DB_NAME
+        usernameKey: PNEXTCLOUD_DB_USER
         passwordKey: NEXTCLOUD_DB_PASS
-    ingress:
+    redis:
       enabled: true
-      className: external
-      annotations:
-        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-        nginx.ingress.kubernetes.io/proxy-body-size: "10G"
-        nginx.ingress.kubernetes.io/proxy-buffering: "off"
-        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
-        nginx.ingress.kubernetes.io/server-snippet: |-
-          server_tokens off;
-          proxy_hide_header X-Powered-By;
-
-          rewrite ^/.well-known/webfinger /public.php?service=webfinger last;
-          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
-          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
-          location = /.well-known/carddav {
-            return 301 $scheme://$host/remote.php/dav;
-          }
-          location = /.well-known/caldav {
-            return 301 $scheme://$host/remote.php/dav;
-          }
-          location = /robots.txt {
-            allow all;
-            log_not_found off;
-            access_log off;
-          }
-          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
-            deny all;
-          }
-          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
-            deny all;
-          }
-      path: /
-      pathType: Prefix
-      tls:
-        - hosts:
-            - *host
-    persistence:
-      enabled: true
-      existingClaim: nextcloud-config-pvc
-      nextcloudData:
+      architecture: standalone
+      auth:
         enabled: true
-        existingClaim: nextcloud-data-pvc
-        accessMode: ReadWriteOnce
-    # this seems to be required for nextcloud initialization which takes a long time
-    startupProbe:
-      enabled: true
-      initialDelaySeconds: 10
-      periodSeconds: 10
-      timeoutSeconds: 5
-      failureThreshold: 30
-      successThreshold: 1
+        existingSecret: *secret
+        existingSecretPasswordKey: NEXTCLOUD_REDIS_PASSWORD
+      master:
+        persistence:
+          enabled: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            memory: 100Mi
+      commonConfiguration: |-
+        # Enable AOF https://redis.io/topics/persistence#append-only-file
+        appendonly yes
+        # Disable RDB persistence, AOF persistence already enabled.
+        save ""
+        maxmemory 94371840
+        maxmemory-policy allkeys-lru
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 10Mi
+          limits:
+            memory: 20Mi
+    metrics:
+      enabled: false
+      https: true
+      image:
+        repository: docker.io/xperimental/nextcloud-exporter
+        tag: 0.6.2
+      serviceMonitor:
+        enabled: false

@@ -6,7 +6,5 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./helmrelease-db.yaml
-  - ./helmrelease-redis.yaml
   - ./pvc.yaml
   - ./pvc-db.yaml
-  - ./pvc-redis.yaml
