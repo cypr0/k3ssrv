@@ -13,8 +13,8 @@ spec:
     storageClass: longhorn-xfs
   bootstrap:
     initdb:
-      database: paperless
-      owner: paperless
+      database: ${PAPERLESS_DB_NAME}
+      owner: ${PAPERLESS_DB_USER}
       secret:
         name: paperless-db-secret
   primaryUpdateStrategy: unsupervised
