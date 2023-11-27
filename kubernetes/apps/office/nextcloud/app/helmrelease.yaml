@@ -162,7 +162,7 @@ spec:
         secretName: *secret
         hostKey: NEXTCLOUD_POSTGRES_HOST
         databaseKey: NEXTCLOUD_DB_NAME
-        usernameKey: PNEXTCLOUD_DB_USER
+        usernameKey: NEXTCLOUD_DB_USER
         passwordKey: NEXTCLOUD_DB_PASS
     redis:
       enabled: true
