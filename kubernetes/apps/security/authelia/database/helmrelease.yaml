@@ -26,7 +26,7 @@ spec:
     keepHistory: false
   values:
     auth:
-      existingSecret: authelia-secret
+      existingSecret: authelia-db-secret
       secretKeys:
         userPasswordKey: AUTHELIA_STORAGE_POSTGRES_PASSWORD
         adminPasswordKey: POSTGRES_SUPER_PASS

@@ -5,7 +5,7 @@ metadata:
   name: authelia-redis-pvc
   namespace: security
 spec:
-  storageClassName: longhorn-backup
+  storageClassName: longhorn-xfs
   accessModes:
   - ReadWriteOnce
   resources:
