@@ -63,6 +63,9 @@ spec:
         local.config.php: |-
           <?php
           $CONFIG = array (
+           'overwriteprotocol' => 'https',
+           'overwrite.cli.url' => 'https://cloud.${SECRET_DOMAIN}',
+           'filelocking.enabled' => 'true',
            'trusted_domains' =>
            array (
                 'nextcloud',
