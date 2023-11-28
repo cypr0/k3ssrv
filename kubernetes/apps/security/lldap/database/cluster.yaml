@@ -1,0 +1,22 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-lldap
+  namespace: security
+spec:
+  description: Postgresql cluster for lldap
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.1
+  instances: 2
+  storage:
+    size: 1Gi
+    storageClass: longhorn-xfs
+  bootstrap:
+    initdb:
+      database: ${LLDAP_DB_NAME}
+      owner: ${LLDAP_DB_USER}
+      secret:
+        name: lldap-db-secret
+  primaryUpdateStrategy: unsupervised
+  monitoring:
+    enablePodMonitor: true
