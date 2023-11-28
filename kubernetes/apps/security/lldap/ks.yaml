@@ -26,7 +26,7 @@ spec:
   dependsOn:
     - name: cluster-apps-external-secrets-stores
     - name: cluster-apps-longhorn-configs
-  path: ./kubernetes/apps/office/paperless/database
+  path: ./kubernetes/apps/security/lldap/database
   prune: true
   sourceRef:
     kind: GitRepository
