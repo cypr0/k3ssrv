@@ -24,6 +24,9 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  dependsOn:
+    - name: postgres-lldap
+      namespace: security
   values:
     controllers:
       main:
