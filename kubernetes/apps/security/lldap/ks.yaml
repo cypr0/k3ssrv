@@ -7,6 +7,7 @@ metadata:
 spec:
   dependsOn:
     - name: cluster-apps-lldap-database
+    - name: cluster-apps-external-secrets-stores
   path: ./kubernetes/apps/security/lldap/app
   prune: true
   sourceRef:
