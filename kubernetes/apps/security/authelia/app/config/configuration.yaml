@@ -6,7 +6,7 @@ authentication_backend:
   ldap:
     address: ldap://lldap:389
     implementation: custom
-    timeout: 5s
+    timeout: 10s
     start_tls: false
     base_dn: dc=home,dc=arpa
     additional_users_dn: ou=people
