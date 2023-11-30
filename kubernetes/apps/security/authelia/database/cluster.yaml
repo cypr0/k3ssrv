@@ -1,0 +1,22 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-authelia
+  namespace: security
+spec:
+  description: Postgresql cluster for authelia
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.1
+  instances: 2
+  storage:
+    size: 1Gi
+    storageClass: longhorn-xfs
+  bootstrap:
+    initdb:
+      database: ${AUTHELIA_DB_NAME}
+      owner: ${AUTHELIA_DB_USER}
+      secret:
+        name: authelia-db-secret
+  primaryUpdateStrategy: unsupervised
+  monitoring:
+    enablePodMonitor: true
