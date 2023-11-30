@@ -4,4 +4,4 @@ kind: Kustomization
 namespace: security
 resources:
   - ./externalsecret.yaml
-  - ./helmrelease.yaml
+  - ./cluster.yaml
