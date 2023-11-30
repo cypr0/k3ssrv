@@ -1,0 +1,22 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-nextcloud
+  namespace: office
+spec:
+  description: Postgresql cluster for nextcloud
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.1
+  instances: 2
+  storage:
+    size: 5Gi
+    storageClass: longhorn-xfs
+  bootstrap:
+    initdb:
+      database: ${NEXTCLOUD_DB_NAME}
+      owner: ${NEXTCLOUD_DB_USER}
+      secret:
+        name: nextcloud-db-secret
+  primaryUpdateStrategy: unsupervised
+  monitoring:
+    enablePodMonitor: true
