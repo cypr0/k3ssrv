@@ -123,6 +123,12 @@ spec:
         secretName: nextcloud-secret
         usernameKey: database-username
         passwordKey: database-password
+    securityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      runAsNonRoot: true
     persistence:
       enabled: true
       existingClaim: nextcloud-config-pvc
