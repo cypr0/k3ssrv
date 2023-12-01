@@ -28,8 +28,8 @@ spec:
     fullnameOverride: *app
     image:
       repository: nextcloud
-      tag: 27.1.4-apache
-      flavor: apache
+      tag: 27.1.4-fpm
+      flavor: fpm-alpine
     ingress:
       enabled: true
       className: external
@@ -55,6 +55,13 @@ spec:
         - hosts:
             - &host cloud.${SECRET_DOMAIN}
     nextcloud:
+      nginx:
+        enabled: true
+        image:
+          repository: nginx
+          tag: 1.25-alpine
+        config:
+          default: true
       mail:
         enabled: true
         fromAddress: admin
