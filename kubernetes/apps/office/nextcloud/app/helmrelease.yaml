@@ -28,8 +28,8 @@ spec:
     fullnameOverride: *app
     image:
       repository: nextcloud
-      tag: 27.1.4-fpm-alpine
-      flavor: fpm-alpine
+      tag: 27.1.4-apache
+      flavor: apache
     ingress:
       enabled: true
       className: external
@@ -55,12 +55,6 @@ spec:
         - hosts:
             - &host cloud.${SECRET_DOMAIN}
     nextcloud:
-      securityContext:
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
-        fsGroupChangePolicy: "OnRootMismatch"
-        runAsNonRoot: true
       mail:
         enabled: true
         fromAddress: admin
@@ -121,10 +115,7 @@ spec:
             - name: REDIS_HOST_PORT
               value: "6379"
     nginx:
-      enabled: true
-      image:
-        repository: nginx
-        tag: 1.25-alpine
+      enabled: false
     internalDatabase:
       enabled: false
     externalDatabase:
