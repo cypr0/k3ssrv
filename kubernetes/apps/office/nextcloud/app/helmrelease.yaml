@@ -55,6 +55,12 @@ spec:
         - hosts:
             - &host cloud.${SECRET_DOMAIN}
     nextcloud:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: "OnRootMismatch"
+        runAsNonRoot: true
       configs:
         proxy.config.php: |-
           <?php
@@ -123,12 +129,6 @@ spec:
         secretName: nextcloud-secret
         usernameKey: database-username
         passwordKey: database-password
-    securityContext:
-      runAsUser: 568
-      runAsGroup: 568
-      fsGroup: 568
-      fsGroupChangePolicy: "OnRootMismatch"
-      runAsNonRoot: true
     persistence:
       enabled: true
       existingClaim: nextcloud-config-pvc
