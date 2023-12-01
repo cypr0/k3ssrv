@@ -61,6 +61,14 @@ spec:
         fsGroup: 568
         fsGroupChangePolicy: "OnRootMismatch"
         runAsNonRoot: true
+      mail:
+        enabled: true
+        fromAddress: admin
+        domain: "${SECRET_DOMAIN}"
+        smtp:
+          secure: ssl
+          port: 465
+          authtype: LOGIN
       configs:
         proxy.config.php: |-
           <?php
