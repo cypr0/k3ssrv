@@ -166,7 +166,7 @@ spec:
       existingSecret:
         enabled: true
         secretName: nextcloud-secret
-        usernameKey: datapase-username
+        usernameKey: database-username
         passwordKey: database-password
       database: ${NEXTCLOUD_DB_NAME}
 
