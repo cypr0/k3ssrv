@@ -101,6 +101,8 @@ spec:
           secure: ssl
           port: 465
           authtype: LOGIN
+      defaultConfigs:
+        redis.config.php: false
       phpConfigs:
           uploadLimit.ini: |
             upload_max_filesize = 16G
