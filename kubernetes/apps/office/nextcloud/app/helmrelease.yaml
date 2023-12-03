@@ -87,12 +87,6 @@ spec:
         smtpHostKey: smtp-host
       update: 0
       datadir: /var/data
-      persistence:
-        enabled: true
-        existingClaim: nextcloud-config-pvc
-        nextcloudData:
-          enabled: true
-          existingClaim: nextcloud-data-pvc
       mail:
         enabled: true
         fromAddress: admin
@@ -155,6 +149,13 @@ spec:
         pullPolicy: IfNotPresent
       config:
         default: true
+
+    persistence:
+      enabled: true
+      existingClaim: nextcloud-config-pvc
+      nextcloudData:
+        enabled: true
+        existingClaim: nextcloud-data-pvc
 
     internalDatabase:
       enabled: false
