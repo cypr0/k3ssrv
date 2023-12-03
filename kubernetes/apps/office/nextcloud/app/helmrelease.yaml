@@ -25,127 +25,180 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    fullnameOverride: *app
     image:
       repository: nextcloud
-      tag: 27.1.4-fpm
-      flavor: fpm-alpine
+      tag: 27.1.4-fpm-alpine
+      pullPolicy: IfNotPresent
+
+    fullnameOverride: *app
+
+    replicaCount: 2
+
     ingress:
       enabled: true
       className: external
       annotations:
         external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For"
-        nginx.ingress.kubernetes.io/proxy-body-size: 512M
-        nginx.ingress.kubernetes.io/proxy-buffering: "off"
-        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
-        nginx.ingress.kubernetes.io/server-snippet: |
+        nginx.ingress.kubernetes.io/proxy-body-size: 4G
+        nginx.ingress.kubernetes.io/server-snippet: |-
           server_tokens off;
-          location ^~ /.well-known {
-            location = /.well-known/carddav { return 301 /remote.php/dav/; }
-            location = /.well-known/caldav { return 301 /remote.php/dav/; }
-            location = /.well-known/acme-challenge { try_files $uri $uri/ =404; }
-            location = /.well-known/pki-validation { try_files $uri $uri/ =404; }
-            return 301 /index.php$request_uri;
+          proxy_hide_header X-Powered-By;
+          rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+          rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+          location = /.well-known/carddav {
+            return 301 $scheme://$host/remote.php/dav;
           }
-          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)(?:$|/)  { return 404; }
-          location ~ ^/(?:\.|autotest|occ|issue|indie|db_|console)                { return 404; }
+          location = /.well-known/caldav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+          }
+          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+            deny all;
+          }
+          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+            deny all;
+          }
       tls:
-        - hosts:
-            - &host cloud.${SECRET_DOMAIN}
+        hosts:
+          - &host cloud.${SECRET_DOMAIN}
+      path: /
+      pathType: Prefix
+
+    phpClientHttpsFix:
+      enabled: false
+      protocol: https
+
     nextcloud:
-      nginx:
-        enabled: true
-        image:
-          repository: nginx
-          tag: 1.25-alpine
-        config:
-          default: true
-      mail:
-        enabled: true
-        fromAddress: admin
-        domain: "${SECRET_DOMAIN}"
-        smtp:
-          secure: ssl
-          port: 465
-          authtype: LOGIN
-      configs:
-        proxy.config.php: |-
-          <?php
-          $CONFIG = array (
-            'trusted_proxies' => array(
-              0 => '127.0.0.1',
-              1 => '10.0.0.0/8',
-            ),
-            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
-          );
       host: *host
       existingSecret:
         enabled: true
         secretName: nextcloud-secret
-      datadir: /var/www/data
-      extraEnv:
-        - name: REDIS_HOST
-          value: redis
-        - name: REDIS_HOST_PORT
-          value: "6379"
-      extraInitContainers:
-        - name: wait-database
-          image: alpine:3.18.4
-          imagePullPolicy: IfNotPresent
-          command:
-            - sh
-          args:
-            - -c
-            - >-
-              until nc -w 1 -v $MYSQL_HOST:3306 || nc -w 1 -v $POSTGRES_HOST:5432;
-              do echo "Waiting for database";
-              done
-          env:
-            - name: POSTGRES_HOST
-              value: postgres-nextcloud-rw.office
-        - name: wait-redis
-          image: alpine:3.18.4
-          imagePullPolicy: IfNotPresent
-          command:
-            - sh
-          args:
-            - -c
-            - >-
-              until nc -w 1 -v $REDIS_HOST:$REDIS_HOST_PORT;
-              do echo "Waiting for Redis";
-              done
-          env:
-            - name: REDIS_HOST
-              value: redis.database
-            - name: REDIS_HOST_PORT
-              value: "6379"
+        usernameKey: nextcloud-username
+        passwordKey: nextcloud-password
+        tokenKey: nextcloud-token
+        smtpUsernameKey: smtp-username
+        smtpPasswordKey: smtp-password
+        smtpHostKey: smtp-host
+      update: 0
+      datadir: /var/data
+      persistence:
+        enabled: true
+        existingClaim: nextcloud-config-pvc
+        nextcloudData:
+          enabled: true
+          existingClaim: nextcloud-data-pvc
+      mail:
+        enabled: true
+        fromAddress: admin
+        domain: ${SECRET_DOMAIN}
+        smtp:
+          secure: ssl
+          port: 465
+          authtype: LOGIN
+      phpConfigs:
+          uploadLimit.ini: |
+            upload_max_filesize = 16G
+            post_max_size = 16G
+            max_input_time = 3600
+            max_execution_time = 3600
+            default_phone_region = DE
+          pgsql.ini: |
+            extension=pdo_pgsql.so
+            extension=pgsql.so
+            [PostgresSQL]
+            pgsql.allow_persistent = On
+            pgsql.auto_reset_persistent = Off
+            pgsql.max_persistent = -1
+            pgsql.max_links = -1
+            pgsql.ignore_notice = 0
+            pgsql.log_notice = 0
+      configs:
+        redis.config.php: |-
+          <?php
+          $CONFIG = array (
+            'memcache.distributed' => '\OC\Memcache\Redis',
+            'memcache.locking' => '\OC\Memcache\Redis',
+            'memcache.local' => '\OC\Memcache\Redis',
+            'redis' => array(
+              'host' => 'redis.database.svc.cluster.local',
+              'port' => 6379,
+            ),
+          );
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' =>
+            array(
+               0 => '${CLUSTER_CIDR}',
+            ),
+            'forwarded_for_headers' =>
+            array (
+              0 => 'HTTP_X_FORWARDED_FOR',
+            ),
+          );
+      strategy:
+        type: RollingUpdate
+
     nginx:
-      enabled: false
+      enabled: true
+      image:
+        repository: nginx
+        tag: 1.25.3-alpine
+        pullPolicy: IfNotPresent
+      config:
+        default: true
+
     internalDatabase:
       enabled: false
+
     externalDatabase:
       enabled: true
       type: postgresql
-      host: postgres-nextcloud-rw.office:5432
-      database: ${NEXTCLOUD_DB_NAME}
+      host: postgres-nextcloud-rw:5432
       existingSecret:
         enabled: true
         secretName: nextcloud-secret
-        usernameKey: database-username
+        usernameKey: datapase-username
         passwordKey: database-password
-    persistence:
-      enabled: true
-      existingClaim: nextcloud-config-pvc
-      nextcloudData:
-        enabled: true
-        existingClaim: nextcloud-data-pvc
+      database: ${NEXTCLOUD_DB_NAME}
+
     cronjob:
       enabled: true
+
     resources:
       requests:
         cpu: 34m
         memory: 204Mi
       limits:
         memory: 363Mi
+
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    startupProbe:
+      enabled: false
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 30
+      successThreshold: 1
+
+    hpa:
+      enabled: false
