@@ -2,14 +2,14 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: nextcloud
+  name: &app nextcloud
   namespace: office
 spec:
   interval: 30m
   chart:
     spec:
       chart: nextcloud
-      version: 3.4.3
+      version: 4.5.5
       sourceRef:
         kind: HelmRepository
         name: nextcloud
@@ -26,20 +26,50 @@ spec:
     keepHistory: false
   values:
     image:
-      flavor: fpm-alpine
+      repository: nextcloud
+      # tag: 24.0.3-apache
+      pullPolicy: IfNotPresent
+      # pullSecrets:
+      #   - myRegistrKeySecretName
     nginx:
-      enabled: true
+      enabled: false
+    lifecycle:
+      postStartCommand: ["/bin/sh", "-c", "echo \"ServerName cloud.${SECRET_DOMAIN}\" | tee -a /etc/apache2/apache2.conf"]
     nextcloud:
-      datadir: /var/data
+      host: &host drive.${SECRET_DOMAIN}
+      configs:
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' =>
+            array (
+              0 => '${SERVICE_CIDR}',
+            ),
+            'forwarded_for_headers' =>
+            array (
+              0 => 'HTTP_X_FORWARDED_FOR',
+            ),
+            'overwrite.cli.url' => 'https://cloud.${SECRET_DOMAIN}',
+            'overwriteprotocol' => 'https',
+            'skeletondirectory' => '',
+            'default_phone_region' => 'MY',
+          );
+      datadir: /var/www/data
+      existingSecret:
+        enabled: true
+        secretName: &secret nextcloud-secret
+        usernameKey: nextcloud-username
+        passwordKey: nextcloud-password
+        # tokenKey: METRICS_TOKEN
+        smtpHostKey: smtp-host
+        smtpUsernameKey: smtp-username
+        smtpPasswordKey: smtp-password
       extraEnv:
         - name: REDIS_HOST
           value: redis.database
         - name: REDIS_HOST_PORT
           value: "6379"
-      existingSecret:
-        enabled: true
-        secretName: nextcloud-secret
-      host: &host cloud.${SECRET_DOMAIN}
+
       mail:
         enabled: true
         fromAddress: admin
@@ -47,21 +77,33 @@ spec:
         smtp:
           port: 465
           authtype: LOGIN
+      # securityContext:
+      #   runAsUser: 1000
+      #   runAsGroup: 1000
+      #   runAsNonRoot: true
+      #   readOnlyRootFilesystem: false
+    redis:
+      enabled: false
+      # auth:
+      #   enabled: true
+      #   redis.auth.existingSecret: nextcloud-secret
+      #   redis.auth.existingSecretPasswordKey: NEXTCLOUD_REDIS_PASSWORD
     internalDatabase:
       enabled: false
     externalDatabase:
       enabled: true
-      type: postgresql
-      host: postgres-nextcloiud-rw:5432
-      database: ${NEXTCLOUD_DB_NAME}
+      type: 'postgresql'
+      host: postgres-nextcloud-rw
       existingSecret:
         enabled: true
-        secretName: nextcloud-secret
+        secretName: *secret
         usernameKey: database-username
-        passwordKEy: database-password
+        passwordKey: database-password
+        databaseKey: ${NEXTCLOUD_DB_NAME}
     ingress:
       enabled: true
       className: "external"
+      # servicePort: http
       annotations:
         external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
         nginx.ingress.kubernetes.io/proxy-body-size: "10G"
@@ -70,6 +112,26 @@ spec:
         nginx.ingress.kubernetes.io/server-snippet: |-
           server_tokens off;
           proxy_hide_header X-Powered-By;
+          rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+          rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+          location = /.well-known/carddav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /.well-known/caldav {
+            return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+          }
+          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+            deny all;
+          }
+          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+            deny all;
+          }
       path: /
       pathType: Prefix
       tls:
@@ -81,3 +143,7 @@ spec:
       nextcloudData:
         enabled: true
         existingClaim: nextcloud-data-pvc
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false
