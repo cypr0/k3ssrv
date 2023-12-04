@@ -28,6 +28,7 @@ spec:
     image:
       repository: nextcloud
       tag: 27.1.4-apache
+      flavor: apache
       pullPolicy: IfNotPresent
 
     fullnameOverride: *app
@@ -71,7 +72,7 @@ spec:
       pathType: Prefix
 
     phpClientHttpsFix:
-      enabled: true
+      enabled: false
       protocol: https
 
     nextcloud:
