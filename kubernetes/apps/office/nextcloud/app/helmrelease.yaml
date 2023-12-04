@@ -122,7 +122,7 @@ spec:
             'memcache.locking' => '\OC\Memcache\Redis',
             'memcache.local' => '\OC\Memcache\Redis',
             'redis' => array(
-              'host' => 'redis.database.svc.cluster.local',
+              'host' => 'redis.database',
               'port' => 6379,
             ),
           );
