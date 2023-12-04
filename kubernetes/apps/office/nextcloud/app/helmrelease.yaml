@@ -25,25 +25,27 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    replicaCount: 2
     image:
       repository: nextcloud
       tag: 27.1.4-apache
       pullPolicy: IfNotPresent
-      # pullSecrets:
-      #   - myRegistrKeySecretName
     nginx:
       enabled: false
     lifecycle:
       postStartCommand: ["/bin/sh", "-c", "echo \"ServerName cloud.${SECRET_DOMAIN}\" | tee -a /etc/apache2/apache2.conf"]
     nextcloud:
       host: &host cloud.${SECRET_DOMAIN}
+      strategy:
+        type: RollingUpdate
       configs:
         proxy.config.php: |-
           <?php
           $CONFIG = array (
             'trusted_proxies' =>
             array (
-              0 => '${SERVICE_CIDR}',
+              0 => '${SERVICE_CIDR}'
+              1 => '${NODE_CIDR}',
             ),
             'forwarded_for_headers' =>
             array (
@@ -52,9 +54,14 @@ spec:
             'overwrite.cli.url' => 'https://cloud.${SECRET_DOMAIN}',
             'overwriteprotocol' => 'https',
             'skeletondirectory' => '',
+            'bulkupload.enabled' => 'false',
             'default_phone_region' => 'DE',
+            'upload_max_filesize = 16G',
+            'post_max_size = 16G',
+            'max_input_time = 3600',
+            'max_execution_time = 3600',
           );
-      datadir: /var/www/data
+      datadir: /var/data
       existingSecret:
         enabled: true
         secretName: nextcloud-secret
@@ -100,6 +107,10 @@ spec:
         usernameKey: database-username
         passwordKey: database-password
         databaseKey: database-name
+    cronjob:
+      enabled: true
+      failedJobsHistoryLimit: 1
+      successfulJobsHistoryLimit: 1
     ingress:
       enabled: true
       className: "external"
