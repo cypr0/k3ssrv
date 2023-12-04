@@ -36,7 +36,7 @@ spec:
     lifecycle:
       postStartCommand: ["/bin/sh", "-c", "echo \"ServerName cloud.${SECRET_DOMAIN}\" | tee -a /etc/apache2/apache2.conf"]
     nextcloud:
-      host: &host drive.${SECRET_DOMAIN}
+      host: &host cloud.${SECRET_DOMAIN}
       configs:
         proxy.config.php: |-
           <?php
