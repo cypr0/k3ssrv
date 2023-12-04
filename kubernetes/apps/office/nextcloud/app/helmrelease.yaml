@@ -99,7 +99,7 @@ spec:
         secretName: *secret
         usernameKey: database-username
         passwordKey: database-password
-        databaseKey: ${NEXTCLOUD_DB_NAME}
+        databaseKey: database-name
     ingress:
       enabled: true
       className: "external"
