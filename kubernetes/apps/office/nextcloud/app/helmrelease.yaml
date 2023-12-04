@@ -170,7 +170,6 @@ spec:
       successThreshold: 1
     readinessProbe:
       enabled: true
-      enabled: true
       initialDelaySeconds: 10
       periodSeconds: 10
       timeoutSeconds: 5
