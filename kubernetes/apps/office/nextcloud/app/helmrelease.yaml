@@ -50,6 +50,11 @@ spec:
               3 => 'nextcloud',
               4 => '192.168.0.0/16',
             ),
+            'trusted_domains' =>
+            array (
+              0 => '${SECRET_DOMAIN}',
+              1 = > 'cloud.${SECRET_DOMAIN}',
+            ),
             'forwarded_for_headers' =>
             array (
               0 => 'HTTP_X_FORWARDED_FOR',
