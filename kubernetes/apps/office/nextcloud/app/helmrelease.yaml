@@ -27,7 +27,7 @@ spec:
   values:
     image:
       repository: nextcloud
-      # tag: 24.0.3-apache
+      tag: 27.1.4-apache
       pullPolicy: IfNotPresent
       # pullSecrets:
       #   - myRegistrKeySecretName
@@ -52,12 +52,12 @@ spec:
             'overwrite.cli.url' => 'https://cloud.${SECRET_DOMAIN}',
             'overwriteprotocol' => 'https',
             'skeletondirectory' => '',
-            'default_phone_region' => 'MY',
+            'default_phone_region' => 'DE',
           );
       datadir: /var/www/data
       existingSecret:
         enabled: true
-        secretName: &secret nextcloud-secret
+        secretName: nextcloud-secret
         usernameKey: nextcloud-username
         passwordKey: nextcloud-password
         # tokenKey: METRICS_TOKEN
@@ -96,7 +96,7 @@ spec:
       host: postgres-nextcloud-rw
       existingSecret:
         enabled: true
-        secretName: *secret
+        secretName: nextcloud-secret
         usernameKey: database-username
         passwordKey: database-password
         databaseKey: database-name
