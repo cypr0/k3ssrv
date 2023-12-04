@@ -25,6 +25,7 @@ spec:
   uninstall:
     keepHistory: false
   values:
+
     image:
       repository: nextcloud
       tag: 27.1.4-apache
@@ -105,16 +106,6 @@ spec:
             max_input_time = 3600
             max_execution_time = 3600
             default_phone_region = DE
-          pgsql.ini: |
-            extension=pdo_pgsql.so
-            extension=pgsql.so
-            [PostgresSQL]
-            pgsql.allow_persistent = On
-            pgsql.auto_reset_persistent = Off
-            pgsql.max_persistent = -1
-            pgsql.max_links = -1
-            pgsql.ignore_notice = 0
-            pgsql.log_notice = 0
       configs:
         redis.config.php: |-
           <?php
