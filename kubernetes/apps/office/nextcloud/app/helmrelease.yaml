@@ -44,7 +44,7 @@ spec:
           $CONFIG = array (
             'trusted_proxies' =>
             array (
-              0 => '${SERVICE_CIDR}'
+              0 => '${SERVICE_CIDR}',
               1 => '${NODE_CIDR}',
             ),
             'forwarded_for_headers' =>
