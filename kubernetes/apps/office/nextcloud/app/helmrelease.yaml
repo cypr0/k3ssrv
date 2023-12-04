@@ -53,7 +53,7 @@ spec:
             'trusted_domains' =>
             array (
               0 => '${SECRET_DOMAIN}',
-              1 = > 'cloud.${SECRET_DOMAIN}',
+              1 => 'cloud.${SECRET_DOMAIN}',
             ),
             'forwarded_for_headers' =>
             array (
