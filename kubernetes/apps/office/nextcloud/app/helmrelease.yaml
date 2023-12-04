@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: nextcloud
-      version: 4.5.4
+      version: 4.5.5
       sourceRef:
         kind: HelmRepository
         name: nextcloud
@@ -124,6 +124,8 @@ spec:
             'trusted_proxies' =>
             array(
                0 => '${CLUSTER_CIDR}',
+               1 => '127.0.0.1',
+               2 => '10.0.0.0/8',
             ),
             'forwarded_for_headers' =>
             array (
