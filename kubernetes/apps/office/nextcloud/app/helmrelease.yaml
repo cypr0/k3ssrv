@@ -81,7 +81,7 @@ spec:
         smtpPasswordKey: smtp-password
       extraEnv:
         - name: REDIS_HOST
-          value: redis.database
+          value: redis-master.database
         - name: REDIS_HOST_PORT
           value: "6379"
 
