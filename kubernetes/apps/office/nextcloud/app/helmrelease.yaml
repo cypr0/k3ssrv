@@ -69,7 +69,7 @@ spec:
             'max_input_time = 3600',
             'max_execution_time = 3600',
           );
-      datadir: /var/data
+      datadir: /var/www/data
       existingSecret:
         enabled: true
         secretName: nextcloud-secret
