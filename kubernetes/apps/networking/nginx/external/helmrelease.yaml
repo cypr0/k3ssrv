@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: ingress-nginx
-      version: 4.7.1
+      version: 4.8.4
       sourceRef:
         kind: HelmRepository
         name: ingress-nginx
@@ -50,6 +50,7 @@ spec:
               operator: In
               values: ["external"]
       config:
+        block-user-agents: GPTBot,~*GPTBot*,ChatGPT-User,~*ChatGPT-User*,Google-Extended,~*Google-Extended*,CCBot,~*CCBot*,Omgilibot,~*Omgilibot*,FacebookBot,~*FacebookBot*
         client-body-buffer-size: 100M
         client-body-timeout: 120
         client-header-timeout: 120
