@@ -89,6 +89,7 @@ spec:
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
+              app.kubernetres.io/name: ingress-nginx
               app.kubernetes.io/name: nginx-external
               app.kubernetes.io/component: controller
       resources:
