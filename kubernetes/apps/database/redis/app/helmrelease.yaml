@@ -26,25 +26,15 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    global:
-      storageClass: longhorn-xfs
     auth:
       enabled: false
       sentinel: false
     master:
       persistence:
-        enabled: true
-        size: 1Gi
-      resources:
-        requests:
-          cpu: 15m
-          memory: 20Mi
-        limits:
-          memory: 100Mi
+        enabled: false
     replica:
       persistence:
-        enabled: true
-        size: 1Gi
+        enabled: false
       resources:
         requests:
           cpu: 15m
@@ -59,16 +49,11 @@ spec:
         failureThreshold: 2
       persistence:
         enabled: false
-      resources:
-        requests:
-          cpu: 10m
-          memory: 10Mi
-        limits:
-          memory: 50Mi
     metrics:
       enabled: true
       serviceMonitor:
         enabled: true
+        interval: 1m
       resources:
         requests:
           cpu: 10m
