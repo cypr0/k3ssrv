@@ -101,5 +101,5 @@ spec:
   valuesFrom:
     - targetPath: controller.maxmindLicenseKey
       kind: Secret
-      name: nginx-external-maxmind-secret
+      name: nginx-external-secret
       valuesKey: MAXMIND_LICENSE_KEY
