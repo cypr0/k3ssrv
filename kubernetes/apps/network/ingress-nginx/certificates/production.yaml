@@ -11,7 +11,7 @@ spec:
   commonName: "${SECRET_DOMAIN}"
   privateKey:
     algorithm: "ECDSA"
-    size: "384"
+    size: 384
   dnsNames:
     - "${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"

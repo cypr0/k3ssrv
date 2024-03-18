@@ -10,7 +10,7 @@ spec:
     kind: ClusterIssuer
   privateKey:
     algorithm: "ECDSA"
-    size: "384"
+    size: 384
   commonName: "${SECRET_DOMAIN}"
   dnsNames:
     - "${SECRET_DOMAIN}"
