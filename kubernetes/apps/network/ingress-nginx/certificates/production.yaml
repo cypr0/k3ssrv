@@ -12,6 +12,7 @@ spec:
   privateKey:
     algorithm: "ECDSA"
     size: 384
+    rotationPolicy: Always
   dnsNames:
     - "${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"
