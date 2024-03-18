@@ -85,7 +85,7 @@ spec:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
           # Recommended key size and algorithm according to BSI TR-02102-2 (https://www.bsi.bund.de/SharedDocs/Downloads/DE/BSI/Publikationen/TechnischeRichtlinien/TR02102/BSI-TR-02102-2.pdf?__blob=publicationFile&v=7)
           cert-manager.io/private-key-algorithm: "ECDSA"
-          cert-manager.io/private-key-size: 384
+          cert-manager.io/private-key-size: "384"
         hosts:
           - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
