@@ -8,3 +8,4 @@ data:
   TIMEZONE: "Europe/Berlin"
   CLUSTER_CIDR: "10.69.0.0/16"
   NODE_CIDR: "192.168.10.0/24"
+  SVC_REDIS_ADDR_V4: "192.168.10.6"
