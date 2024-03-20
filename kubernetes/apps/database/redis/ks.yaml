@@ -33,7 +33,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: redis
-  path: ./kubernetes/apps/database/redis/lb
+  path: ./kubernetes/apps/database/redis/loadbalancer
   prune: true
   sourceRef:
     kind: GitRepository
