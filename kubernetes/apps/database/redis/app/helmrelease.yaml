@@ -25,8 +25,10 @@ spec:
       retries: 3
   values:
     auth:
-      enabled: false
-      sentinel: false
+      enabled: true
+      sentinel: true
+      existingSecret: redis-secret
+      existingSecretPasswordKey: password
     master:
       resourcesPreset: small
       persistence:
