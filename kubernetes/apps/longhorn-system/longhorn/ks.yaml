@@ -1,18 +1,17 @@
 ---
-# yaml-language-server: $schema=https://github.com/fluxcd-community/flux2-schemas/raw/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app redis
+  name: &app longhorn
   namespace: flux-system
 spec:
-  targetNamespace: database
+  targetNamespace: longhorn-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: external-secrets-stores
-  path: ./kubernetes/apps/database/redis/app
+  path: ./kubernetes/apps/longhorn-system/longhorn/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -22,20 +21,19 @@ spec:
   retryInterval: 1m
   timeout: 5m
 ---
-# yaml-language-server: $schema=https://github.com/fluxcd-community/flux2-schemas/raw/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app redis-lb
+  name: &app longhorn-config
   namespace: flux-system
 spec:
-  targetNamespace: database
+  targetNamespace: longhorn-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: redis
-  path: ./kubernetes/apps/database/redis/loadbalancer
+    - name: longhorn
+  path: ./kubernetes/apps/longhorn-system/longhorn/config
   prune: true
   sourceRef:
     kind: GitRepository
