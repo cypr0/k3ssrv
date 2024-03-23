@@ -23,24 +23,24 @@ spec:
       strategy: rollback
       retries: 3
   values:
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 1
+      reclaimPolicy: Delete
+      recurringJobSelector:
+        enable: false
     monitoring:
       enabled: true
       createPrometheusRules: true
     defaultSettings:
       backupTarget: s3://k3ssrv-longhorn@eu-central-2/
       backupTargetCredentialSecret: longhorn-secret
-      defaultReplicaCount: 1
-      backupstorePollInterval: 0
-      createDefaultDiskLabeledNodes: true
-      defaultDataLocality: true
-      replicaAutoBalance: true
-      storageMinimalAvailablePercentage: 1
       storageOverProvisioningPercentage: 100
-      defaultLonghornStaticStorageClass: longhorn-backup
-      restoreVolumeRecurringJobs: true
+      storageMinimalAvailablePercentage: 10
       nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
-      concurrentAutomaticEngineUpgradePerNodeLimit: 3
-      guaranteedInstanceManagerCPU: 20
+      restoreVolumeRecurringJobs: true
+      defaultLonghornStaticStorageClass: longhorn-backup
+      concurrentAutomaticEngineUpgradePerNodeLimit: 1
       orphanAutoDeletion: true
     ingress:
       enabled: true
