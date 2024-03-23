@@ -42,21 +42,11 @@ spec:
       concurrentAutomaticEngineUpgradePerNodeLimit: 3
       guaranteedInstanceManagerCPU: 20
       orphanAutoDeletion: true
-      taintToleration: CriticalAddonsOnly:Exists; node-role.kubernetes.io/control-plane:NoSchedule
     ingress:
       enabled: true
       ingressClassName: internal
       host: longhorn.${SECRET_DOMAIN}
       tls: true
-    longhornDriver:
-      tolerations: &tolerations
-        - key: CriticalAddonsOnly
-          operator: Exists
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-          effect: NoSchedule
-    longhornManager:
-      tolerations: *tolerations
     metrics:
       serviceMonitor:
         enabled: true
