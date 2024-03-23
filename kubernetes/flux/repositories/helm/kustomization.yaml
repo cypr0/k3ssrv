@@ -9,8 +9,9 @@ resources:
   - ./external-dns.yaml
   - ./external-secrets.yaml
   - ./ingress-nginx.yaml
-  - ./k8s-gateway.yaml
   - ./jetstack.yaml
+  - ./k8s-gateway.yaml
   - ./metrics-server.yaml
   - ./openebs.yaml
   - ./stakater.yaml
+  - ./prometheus-community.yaml
