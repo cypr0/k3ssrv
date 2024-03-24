@@ -25,10 +25,8 @@ spec:
       retries: 3
   values:
     auth:
-      enabled: true
-      sentinel: true
-      existingSecret: redis-secret
-      existingSecretPasswordKey: password
+      enabled: false
+      sentinel: false
     master:
       resourcesPreset: small
       persistence:
@@ -41,6 +39,9 @@ spec:
       enabled: true
       masterSet: redis-master
       resourcesPreset: small
+      getMasterTimeout: 10
+      startupProbe:
+        failureThreshold: 2
       persistence:
         enabled: false
       resources:
