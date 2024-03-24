@@ -1,0 +1,119 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: paperless
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      main:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: ghcr.io/paperless-ngx/paperless-ngx
+              tag: 2.5
+            env:
+              PAPERLESS_ALLOWED_HOSTS: paperless.${SECRET_DOMAIN}
+              PAPERLESS_CONSUMER_POLLING: 60
+              PAPERLESS_CONSUMER_RECURSIVE: "true"
+              PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "true"
+              PAPERLESS_CONSUMPTION_DIR: /library/consume
+              PAPERLESS_DATA_DIR: /library/data
+              PAPERLESS_ENABLE_HTTP_REMOTE_USER: "true"
+              PAPERLESS_EXPORT_DIR: /library/export
+              PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME: HTTP_X_AUTHENTIK_USERNAME
+              PAPERLESS_LOGOUT_REDIRECT_URL: https://id.${SECRET_DOMAIN}/outpost.goauthentik.io/sign_out
+              PAPERLESS_MEDIA_ROOT: /library/media
+              PAPERLESS_OCR_LANGUAGE: deu+eng+spa
+              PAPERLESS_PORT: &port 80
+              PAPERLESS_REDIS: redis://redis-lb.database.svc.cluster.local:6379
+              PAPERLESS_TASK_WORKERS: 2
+              PAPERLESS_TIKA_ENABLED: 1
+              PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://localhost:3000
+              PAPERLESS_TIKA_ENDPOINT: http://localhost:9998
+              PAPERLESS_TIME_ZONE: ${TIMEZONE}
+              PAPERLESS_TRUSTED_PROXIES: 10.42.0.0/16,10.43.0.0/16,192.168.0.0/16
+              PAPERLESS_URL: https://paperless.${SECRET_DOMAIN}
+              USERMAP_UID: 568
+              USERMAP_GID: 568
+            envFrom:
+              - secretRef:
+                  name: paperless-secret
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1000Mi
+              limits:
+                memory: 5000Mi
+          gotenberg:
+            image:
+              repository: thecodingmachine/gotenberg
+              tag: 8.2.0
+            env:
+              - { name: DISABLE_GOOGLE_CHROME, value: "1" }
+          tika:
+            image:
+              repository: ghcr.io/paperless-ngx/tika
+              tag: 2.9.1-full
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    ingress:
+      main:
+        enabled: true
+        className: internal
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-body-size: 4G
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+          # This should be the in-cluster DNS name for the authentik outpost service
+          # as when the external URL is specified here, nginx will overwrite some crucial headers
+          nginx.ingress.kubernetes.io/auth-url: |-
+              http://ak-outpost-authentik-embedded-outpost.security.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
+          # If you're using domain-level auth, use the authentication URL instead of the application URL
+          nginx.ingress.kubernetes.io/auth-signin: |-
+              https://paperless.${SECRET_DOMAIN}/outpost.goauthentik.io/start?rd=$escaped_request_uri
+          nginx.ingress.kubernetes.io/auth-response-headers: |-
+              Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
+          nginx.ingress.kubernetes.io/auth-snippet: |
+              proxy_set_header X-Forwarded-Host $http_host;
+        hosts:
+          - host: &host "paperless.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+    persistence:
+      library:
+        enabled: true
+        existingClaim: paperless-pvc
+        globalMounts:
+          - path: /library
