@@ -11,7 +11,6 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: external-secrets-stores
     - name: authentik-db
   path: ./kubernetes/apps/security/authentik/app
   prune: true
