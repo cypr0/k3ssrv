@@ -71,7 +71,7 @@ spec:
         valuesKey: AUTHENTIK_EMAIL__PASSWORD
         targetPath: authentik.email.password
     authentik:
-      log_level: debug
+      log_level: info
       avatars: "gravatar,initials"
       email:
         host: mail.${SECRET_DOMAIN}
