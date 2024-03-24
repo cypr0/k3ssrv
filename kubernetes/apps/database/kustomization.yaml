@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ./cloudnative-pg/ks.yaml
   - ./namespace.yaml
- # - ./redis/ks.yaml
+  - ./redis/ks.yaml
