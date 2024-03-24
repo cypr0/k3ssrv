@@ -30,43 +30,9 @@ spec:
         secret.reloader.stakater.com/reload: &secret authentik-secret
       deploymentStrategy:
         type: RollingUpdate
-    valuesFrom:
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_SECRET_KEY
-        targetPath: authentik.secret.key
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__HOST
-        targetPath: authentik.postgres.host
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__NAME
-        targetPath: authentik.postgres.name
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__USER
-        targetPath: authentik.postgres.user
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__PASSWORD
-        targetPath: authentik.postgres.password
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_REDIS__HOST
-        targetPath: authentik.redis.host
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_REDIS__PASSWORD
-        targetPath: authentik.redis.password
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_EMAIL__USERNAME
-        targetPath: authentik.email.username
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_EMAIL__PASSWORD
-        targetPath: authentik.email.password
+      envFrom:
+        - secretRef:
+            name: *secret
     authentik:
       log_level: info
       avatars: "gravatar,initials"
@@ -77,20 +43,16 @@ spec:
       error_reporting:
         enable: false
         send_pii: false
-    postgresql:
-      enabled: false
-    redis:
-      enabled: false
-    geoip:
-      enabled: false
+      redis:
+        host: redis-lb.database-svc-cluster-local
     server:
       autoscaling:
         enabled: true
         minReplicas: 1
       metrics:
-        enabled: true
-        serviceMonitor:
-          enabled: true
+        prometheus:
+          serviceMonitor:
+            enabled: true
       ingress:
         enabled: true
         ingressClassName: external
@@ -108,6 +70,3 @@ spec:
       autoscaling:
         enabled: true
         minReplicas: 1
-    prometheus:
-      rules:
-        enabled: true
