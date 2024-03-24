@@ -30,46 +30,43 @@ spec:
         secret.reloader.stakater.com/reload: &secret authentik-secret
       deploymentStrategy:
         type: RollingUpdate
-      envFrom:
-        - secretRef:
-            name: *secret
-    valuesFrom:
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_SECRET_KEY
-        targetPath: authentik.secret.key
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__HOST
-        targetPath: authentik.postgres.host
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__NAME
-        targetPath: authentik.postgres.name
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__USER
-        targetPath: authentik.postgres.user
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_POSTGRESQL__PASSWORD
-        targetPath: authentik.postgres.password
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_REDIS__HOST
-        targetPath: authentik.redis.host
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_REDIS__PASSWORD
-        targetPath: authentik.redis.password
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_EMAIL__USERNAME
-        targetPath: authentik.email.username
-      - kind: Secret
-        name: *secret
-        valuesKey: AUTHENTIK_EMAIL__PASSWORD
-        targetPath: authentik.email.password
+  valuesFrom:
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_SECRET_KEY
+      targetPath: authentik.secret.key
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_POSTGRESQL__HOST
+      targetPath: authentik.postgres.host
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_POSTGRESQL__NAME
+      targetPath: authentik.postgres.name
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_POSTGRESQL__USER
+      targetPath: authentik.postgres.user
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_POSTGRESQL__PASSWORD
+      targetPath: authentik.postgres.password
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_REDIS__HOST
+      targetPath: authentik.redis.host
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_REDIS__PASSWORD
+      targetPath: authentik.redis.password
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_EMAIL__USERNAME
+      targetPath: authentik.email.username
+    - kind: Secret
+      name: *secret
+      valuesKey: AUTHENTIK_EMAIL__PASSWORD
+      targetPath: authentik.email.password
     authentik:
       log_level: info
       avatars: "gravatar,initials"
