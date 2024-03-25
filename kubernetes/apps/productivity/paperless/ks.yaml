@@ -12,6 +12,7 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: paperless-db
+    - name: longhorn
   path: ./kubernetes/apps/productivity/paperless/app
   prune: true
   sourceRef:
@@ -35,7 +36,6 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: cloudnative-pg
-    - name: openebs
   path: ./kubernetes/apps/productivity/paperless/database
   prune: true
   sourceRef:
