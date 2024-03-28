@@ -22,6 +22,6 @@ spec:
     #   port: 9300
     #   targetPort: 9300
   selector:
-    app.kubernetes.io/name: authentik-outpost-ldap
-    goauthentik.io/outpost-name: ldap-outpost
+    app.kubernetes.io/name: ak-outpost-ldap
+    goauthentik.io/outpost-name: ldap
     goauthentik.io/outpost-type: ldap
